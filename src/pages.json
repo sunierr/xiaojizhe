@@ -1,0 +1,59 @@
+{
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "记者头条"
+			}
+		},
+		{
+			"path": "pages/course/index",
+			"style": {
+				"navigationBarTitleText": "课程报名"
+			}
+		},
+		{
+			"path": "pages/submit/index",
+			"style": {
+				"navigationBarTitleText": "我要投稿"
+			}
+		},
+		{
+			"path": "pages/user/index",
+			"style": {
+				"navigationBarTitleText": "我的主页",
+				"navigationBarBackgroundColor": "#F8F5F5"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "小记者应用",
+		"navigationBarBackgroundColor": "#FFFFFF",
+		"backgroundColor": "#F8F9FA"
+	},
+	"tabBar": {
+		"color": "#999999",
+		"selectedColor": "#C4454C",
+		"backgroundColor": "#FFFFFF",
+		"borderStyle": "white",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/course/index",
+				"text": "课程报名"
+			},
+			{
+				"pagePath": "pages/submit/index",
+				"text": "投稿"
+			},
+			{
+				"pagePath": "pages/user/index",
+				"text": "我的"
+			}
+		]
+	}
+}
