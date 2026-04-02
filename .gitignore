@@ -11,6 +11,11 @@ node_modules
 .DS_Store
 dist
 *.local
+.env
+
+# User uploads
+backend/uploads/
+!backend/uploads/.gitkeep
 
 # Editor directories and files
 .idea
