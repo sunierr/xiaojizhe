@@ -1,26 +1,26 @@
 <template>
-  <view class="container">
+  <view class="container" v-if="user">
     <view class="user-header">
       <view class="avatar-area">
-        <image class="avatar" src="" />
+        <image class="avatar" :src="user.avatar || 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=200'" mode="aspectFill" />
       </view>
       <view class="info-area">
-        <text class="name">媒体人_A001</text>
-        <text class="role">认证记者</text>
+        <text class="name">{{ user.username }}</text>
+        <text class="role">{{ user.role }}</text>
       </view>
     </view>
 
     <view class="stats-row">
       <view class="stat-item">
-        <text class="stat-val">12</text>
+        <text class="stat-val">{{ user.stats?.publishedCount || 0 }}</text>
         <text class="stat-label">已发报道</text>
       </view>
       <view class="stat-item">
-        <text class="stat-val">5</text>
+        <text class="stat-val">{{ user.stats?.enrolledCourses || 0 }}</text>
         <text class="stat-label">所修课程</text>
       </view>
       <view class="stat-item">
-        <text class="stat-val">100%</text>
+        <text class="stat-val">{{ user.stats?.acceptanceRate || 100 }}%</text>
         <text class="stat-label">采纳率</text>
       </view>
     </view>
@@ -43,6 +43,25 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
+import { fetchUser, TEST_USER_ID } from '@/utils/api';
+
+const user = ref(null);
+
+const loadUserData = async () => {
+  try {
+    const res = await fetchUser(TEST_USER_ID);
+    if (res.statusCode === 200) {
+      user.value = res.data;
+    }
+  } catch (error) {
+    console.error('Failed to load user:', error);
+  }
+};
+
+onMounted(() => {
+  loadUserData();
+});
 </script>
 
 <style scoped>
