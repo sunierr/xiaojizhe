@@ -7,6 +7,14 @@
 			}
 		},
 		{
+			"path": "pages/index/detail",
+			"style": {
+				"navigationBarTitleText": "报道详情",
+				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
 			"path": "pages/course/index",
 			"style": {
 				"navigationBarTitleText": "课程报名"

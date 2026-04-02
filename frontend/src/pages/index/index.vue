@@ -6,8 +6,8 @@
     </view>
     
     <view class="report-list">
-      <view class="card report-card" v-for="item in reports" :key="item._id">
-        <image class="cover" :src="item.images && item.images.length > 0 ? item.images[0] : 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=600'" mode="aspectFill" />
+      <view class="card report-card" v-for="item in reports" :key="item._id" @click="goToDetail(item._id)">
+        <image class="cover" :src="item.images && item.images.length > 0 ? formatFileUrl(item.images[0]) : 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=600'" mode="aspectFill" />
         <view class="content">
           <text class="tag">{{ item.tag }}</text>
           <text class="headline">{{ item.title }}</text>
@@ -19,8 +19,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { fetchReports } from '@/utils/api';
+import { ref } from 'vue';
+import { onShow } from '@dcloudio/uni-app';
+import { fetchReports, formatFileUrl } from '@/utils/api';
 
 const reports = ref([]);
 
@@ -34,6 +35,12 @@ const formatTime = (dateStr) => {
   return `${Math.floor(hours / 24)}天前`;
 };
 
+const goToDetail = (id) => {
+  uni.navigateTo({
+    url: `/pages/index/detail?id=${id}`
+  });
+};
+
 const loadReports = async () => {
   try {
     const res = await fetchReports();
@@ -45,7 +52,7 @@ const loadReports = async () => {
   }
 };
 
-onMounted(() => {
+onShow(() => {
   loadReports();
 });
 </script>
@@ -75,6 +82,12 @@ onMounted(() => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.report-card:active {
+  transform: scale(0.98);
+  opacity: 0.9;
 }
 .cover {
   width: 100%;

@@ -13,11 +13,27 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Get user profile
+const Report = require('../models/Report');
+const Enrollment = require('../models/Enrollment');
+
+// Get user profile with live stats
 router.get('/:id', async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id).lean();
     if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // Dynamically calculate counts to ensure accuracy
+    const [publishedCount, enrolledCourses] = await Promise.all([
+      Report.countDocuments({ author: req.params.id }),
+      Enrollment.countDocuments({ user: req.params.id })
+    ]);
+
+    user.stats = {
+      ...user.stats,
+      publishedCount,
+      enrolledCourses
+    };
+
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
