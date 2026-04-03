@@ -64,7 +64,8 @@
 <script setup>
 import { ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
-import { fetchUser, TEST_USER_ID, BASE_URL, formatFileUrl } from '@/utils/api';
+import { fetchUser, BASE_URL, formatFileUrl } from '@/utils/api';
+import { request } from '@/utils/request';
 
 const user = ref(null);
 const myCourses = ref([]);
@@ -77,8 +78,8 @@ const toggleCourses = () => {
 const loadUserData = async () => {
   try {
     const [userRes, coursesRes] = await Promise.all([
-      fetchUser(TEST_USER_ID),
-      uni.request({ url: `${BASE_URL}/courses/my/${TEST_USER_ID}` })
+      fetchUser(),
+      request({ url: `${BASE_URL}/courses/my/me` })
     ]);
 
     if (userRes.statusCode === 200) {

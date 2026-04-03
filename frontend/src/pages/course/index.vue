@@ -49,7 +49,8 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
-import { fetchCourses, TEST_USER_ID, BASE_URL } from '@/utils/api';
+import { fetchCourses, BASE_URL } from '@/utils/api';
+import { request } from '@/utils/request';
 
 const courses = ref([]);
 const myCourses = ref([]);
@@ -68,7 +69,7 @@ const loadData = async () => {
   try {
     const [allRes, myRes] = await Promise.all([
       fetchCourses(),
-      uni.request({ url: `${BASE_URL}/courses/my/${TEST_USER_ID}` })
+      request({ url: `${BASE_URL}/courses/my/me` })
     ]);
     
     if (allRes.statusCode === 200) courses.value = allRes.data;
@@ -86,11 +87,10 @@ const enrollCourse = async (courseId) => {
   
   enrollingId.value = courseId;
   try {
-    const res = await uni.request({
+    const res = await request({
       url: `${BASE_URL}/courses/enroll`,
       method: 'POST',
       data: {
-        userId: TEST_USER_ID,
         courseId: courseId
       }
     });
@@ -111,11 +111,10 @@ const enrollCourse = async (courseId) => {
 const removeCourse = async (courseId) => {
   uni.showLoading({ title: '正在移除...' });
   try {
-    const res = await uni.request({
+    const res = await request({
       url: `${BASE_URL}/courses/enroll`,
       method: 'DELETE',
       data: {
-        userId: TEST_USER_ID,
         courseId: courseId
       }
     });

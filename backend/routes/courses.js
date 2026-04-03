@@ -3,6 +3,8 @@ const router = express.Router();
 const Course = require('../models/Course');
 const Enrollment = require('../models/Enrollment');
 const User = require('../models/User');
+const { protect } = require('../middleware/auth');
+
 
 // Create course
 router.post('/', async (req, res) => {
@@ -26,9 +28,9 @@ router.get('/', async (req, res) => {
 });
 
 // Get current user's enrollments
-router.get('/my/:userId', async (req, res) => {
+router.get('/my/me', protect, async (req, res) => {
   try {
-    const enrollments = await Enrollment.find({ user: req.params.userId }).populate('course');
+    const enrollments = await Enrollment.find({ user: req.user.id }).populate('course');
     // Filter out potential nulls if Course record was deleted but enrollment stayed
     const courses = enrollments.map(e => e.course).filter(c => c !== null);
     res.json(courses);
@@ -38,9 +40,10 @@ router.get('/my/:userId', async (req, res) => {
 });
 
 // Enroll in a course (with 10 course limit)
-router.post('/enroll', async (req, res) => {
+router.post('/enroll', protect, async (req, res) => {
   try {
-    const { userId, courseId } = req.body;
+    const { courseId } = req.body;
+    const userId = req.user.id;
     
     // Check total enrolled count
     const count = await Enrollment.countDocuments({ user: userId });
@@ -73,9 +76,10 @@ router.post('/enroll', async (req, res) => {
 });
 
 // Unenroll from a course
-router.delete('/enroll', async (req, res) => {
+router.delete('/enroll', protect, async (req, res) => {
   try {
-    const { userId, courseId } = req.body;
+    const { courseId } = req.body;
+    const userId = req.user.id;
     const deleted = await Enrollment.findOneAndDelete({ user: userId, course: courseId });
     
     if (deleted) {

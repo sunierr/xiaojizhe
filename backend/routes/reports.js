@@ -3,18 +3,21 @@ const router = express.Router();
 const upload = require('../middleware/upload');
 const Report = require('../models/Report');
 const User = require('../models/User');
+const { protect } = require('../middleware/auth');
+
 
 // Handle single file upload for images
-router.post('/upload', upload.single('file'), (req, res) => {
+router.post('/upload', protect, upload.single('file'), (req, res) => {
   if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
   const url = `/uploads/${req.file.filename}`;
   res.json({ url });
 });
 
 // Create a new report (modified to take an array of existing URLs or handle direct files)
-router.post('/', upload.array('images', 9), async (req, res) => {
+router.post('/', protect, upload.array('images', 9), async (req, res) => {
   try {
-    const { title, content, tag, author, images: existingImages } = req.body;
+    const { title, content, tag, images: existingImages } = req.body;
+    const author = req.user.id;
     
     // Combine uploaded files and already-uploaded URLs
     const uploadedUrls = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];

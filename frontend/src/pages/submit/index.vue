@@ -36,7 +36,8 @@
 
 <script setup>
 import { reactive, ref } from 'vue';
-import { BASE_URL, TEST_USER_ID } from '@/utils/api';
+import { BASE_URL } from '@/utils/api';
+import { request } from '@/utils/request';
 
 const form = reactive({
   title: '',
@@ -74,6 +75,9 @@ const submitReport = async () => {
             url: `${BASE_URL}/reports/upload`,
             filePath: tempPath,
             name: 'file',
+            header: {
+              'Authorization': `Bearer ${uni.getStorageSync('token')}`
+            },
             success: (res) => {
               if (res.statusCode === 200) {
                 resolve(JSON.parse(res.data).url);
@@ -90,14 +94,13 @@ const submitReport = async () => {
     }
 
     // 2. Submit the report with the new URLs
-    const res = await uni.request({
+    const res = await request({
       url: `${BASE_URL}/reports`,
       method: 'POST',
       data: {
         title: form.title,
         content: form.content,
         tag: form.tag || '未分类',
-        author: TEST_USER_ID,
         images: uploadedUrls
       }
     });

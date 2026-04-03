@@ -1,9 +1,14 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-  username: {
+  openid: {
     type: String,
     required: true,
+    unique: true
+  },
+  username: {
+    type: String,
+    default: '小记者用户',
   },
   avatar: {
     type: String,
