@@ -9,7 +9,7 @@ export const formatFileUrl = (url) => {
     return `${SERVER_HOST}${url}`;
 };
 
-export const fetchReports = () => request({ url: `${BASE_URL}/reports` });
+export const fetchReports = (page = 1, limit = 10) => request({ url: `${BASE_URL}/reports?page=${page}&limit=${limit}`, hideLoading: page > 1 });
 export const fetchCourses = () => request({ url: `${BASE_URL}/courses` });
 export const fetchUser = () => request({ url: `${BASE_URL}/users/me` });
 

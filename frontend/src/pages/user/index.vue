@@ -1,11 +1,18 @@
 <template>
   <view class="container" v-if="user">
     <view class="user-header">
-      <view class="avatar-area">
+      <button class="avatar-btn" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
         <image class="avatar" :src="formatFileUrl(user.avatar) || 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=200'" mode="aspectFill" />
-      </view>
+      </button>
       <view class="info-area">
-        <text class="name">{{ user.username }}</text>
+        <input v-if="isEditing" 
+               type="nickname" 
+               class="name-input" 
+               v-model="editName" 
+               @blur="saveName"
+               @confirm="saveName"
+               auto-focus />
+        <text v-else class="name" @click="startEditName">{{ user.username }} <text class="edit-icon">✎</text></text>
         <text class="role">{{ user.role }}</text>
       </view>
     </view>
@@ -93,6 +100,72 @@ const loadUserData = async () => {
   }
 };
 
+const onChooseAvatar = async (e) => {
+  const avatarUrl = e.detail.avatarUrl;
+  uni.showLoading({ title: '上传中...' });
+  try {
+    const uploadRes = await new Promise((resolve, reject) => {
+      uni.uploadFile({
+        url: `${BASE_URL}/users/upload`,
+        filePath: avatarUrl,
+        name: 'file',
+        header: {
+          'Authorization': `Bearer ${uni.getStorageSync('token')}`
+        },
+        success: (res) => {
+          if (res.statusCode === 200) {
+            resolve(JSON.parse(res.data).url);
+          } else {
+            reject(new Error('上传失败'));
+          }
+        },
+        fail: reject
+      });
+    });
+    
+    await request({
+      url: `${BASE_URL}/users/me`,
+      method: 'PUT',
+      data: { avatar: uploadRes }
+    });
+    
+    user.value.avatar = uploadRes;
+    uni.showToast({ title: '更新成功' });
+  } catch(e) {
+    uni.showToast({ title: '头像更新失败', icon: 'none' });
+  } finally {
+    uni.hideLoading();
+  }
+};
+
+const isEditing = ref(false);
+const editName = ref('');
+
+const startEditName = () => {
+  editName.value = user.value.username;
+  isEditing.value = true;
+};
+
+const saveName = async (e) => {
+  isEditing.value = false;
+  const newName = e.detail.value || editName.value;
+  if (!newName || newName === user.value.username) return;
+  
+  uni.showLoading({ title: '保存中...' });
+  try {
+    await request({
+      url: `${BASE_URL}/users/me`,
+      method: 'PUT',
+      data: { username: newName }
+    });
+    user.value.username = newName;
+  } catch(e) {
+    uni.showToast({ title: '昵称更新失败', icon: 'none' });
+  } finally {
+    uni.hideLoading();
+  }
+};
+
 onShow(() => {
   loadUserData();
 });
@@ -112,6 +185,16 @@ onShow(() => {
   border-bottom-left-radius: 24px;
   border-bottom-right-radius: 24px;
 }
+.avatar-btn {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  line-height: 1;
+  border-radius: 32px;
+}
+.avatar-btn::after {
+  border: none;
+}
 .avatar {
   width: 64px;
   height: 64px;
@@ -121,12 +204,28 @@ onShow(() => {
 }
 .info-area {
   margin-left: 16px;
+  flex: 1;
 }
 .name {
   color: #FFF;
   font-size: 20px;
   font-weight: bold;
   display: block;
+}
+.name-input {
+  color: #FFF;
+  font-size: 20px;
+  font-weight: bold;
+  background: rgba(255,255,255,0.2);
+  border-radius: 8px;
+  padding: 2px 8px;
+  max-width: 200px;
+}
+.edit-icon {
+  font-size: 14px;
+  opacity: 0.6;
+  margin-left: 6px;
+  font-weight: normal;
 }
 .role {
   color: rgba(255,255,255,0.8);

@@ -50,11 +50,29 @@ router.post('/', protect, upload.array('images', 9), async (req, res) => {
   }
 });
 
-// Get all reports
+// Get all reports with pagination
 router.get('/', async (req, res) => {
   try {
-    const reports = await Report.find().populate('author', 'username avatar').sort({ createdAt: -1 });
-    res.json(reports);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const reports = await Report.find()
+      .populate('author', 'username avatar')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Report.countDocuments();
+
+    res.json({
+      data: reports,
+      meta: {
+        total,
+        page,
+        pages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

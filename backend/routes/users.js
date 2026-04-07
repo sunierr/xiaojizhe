@@ -4,6 +4,7 @@ const User = require('../models/User');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { protect } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 
 // Generate JWT form wechat user id
 const generateToken = (id) => {
@@ -87,6 +88,30 @@ router.get('/me', protect, async (req, res) => {
     };
 
     res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Upload avatar
+router.post('/upload', protect, upload.single('file'), (req, res) => {
+  if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+  const url = `/uploads/${req.file.filename}`;
+  res.json({ url });
+});
+
+// Update user profile
+router.put('/me', protect, async (req, res) => {
+  try {
+    const { username, avatar } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    if (username !== undefined) user.username = username;
+    if (avatar !== undefined) user.avatar = avatar;
+    
+    const updatedUser = await user.save();
+    res.json(updatedUser);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
